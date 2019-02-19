@@ -1,0 +1,144 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+
+ 
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+ 
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+ 
+\lstset{style=mystyle}
+
+\newcommand*{\mybox}[1]{\framebox{\strut #1}}
+
+ 
+
+\title{CSC 583 Homework 1}
+\author{Sina Ehsani}
+\date{\today}
+
+
+
+\begin{document}
+\maketitle
+
+
+\section{Problem 1}
+
+
+Consider these documents:\\
+Doc 1 breakthrough drug for schizophrenia \\
+Doc 2 new approach for treatment of schizophrenia \\
+Doc 3 new hopes for schizophrenia patients \\
+Doc 4 new schizophrenia drug \\
+
+1. Draw the term-document incidence matrix for this document collection.
+\\
+
+\begin{center}
+\begin{tabular}{ l | c c c c }
+  & Doc 1 & Doc 2 & Doc 3 & Doc 4 \\
+  \hline
+  approach & 0 & 1 & 0 & 0 \\
+  breakthrough & 1 & 0 & 0 & 0\\
+  drug & 1 & 0 & 0 & 1\\
+  for & 1 & 1 & 1 & 0\\
+  hopes & 0 & 0 & 1 & 0\\
+  new & 0 & 1 & 1 & 1\\
+  of & 0 & 1 & 0 & 0\\
+  patients & 0 & 0 & 1 & 0\\
+  schizophrenia & 1 & 1 & 1 & 1\\
+  treatment & 0 & 1 & 0 & 0\\
+\end{tabular}
+\end{center}
+
+2. Draw the inverted index representation for this collection, as in Figure 1.3 in IIR.
+\begin{align}
+& \mybox{approach} & \longrightarrow  &\mybox{2} \\
+& \mybox{breakthrough} &  \longrightarrow & \mybox{1} \\
+& \mybox{drug} & \longrightarrow& \mybox{1}\mybox{4}\\
+& \mybox{for} & \longrightarrow & \mybox{1}\mybox{2}\mybox{3} \\
+& \mybox{hopes} & \longrightarrow & \mybox{3} \\
+& \mybox{new} & \longrightarrow & \mybox{2}\mybox{3}\mybox{4}\\
+& \mybox{of} & \longrightarrow& \mybox{2}\\
+& \mybox{patients} & \longrightarrow & \mybox{3} \\
+& \mybox{schizophrenia} & \longrightarrow & \mybox{1} \mybox{2}\mybox{3}\mybox{4}\\
+& \mybox{treatment} & \longrightarrow& \mybox{2} 
+\end{align}
+
+3. What are the returned results for these queries:\\
+(a) schizophrenia AND drug
+$$ 1111 \ \mathnormal{AND}\ 1001 = 1001 $$
+(b) for AND NOT(drug OR approach) 
+
+1.drug or approach: 
+$$ 1001 \ \mathnormal{OR}\ 0100 = 1101 $$
+2.NOT(drug OR approach):
+$$ 0010 $$
+3.for AND NOT(drug OR approach)
+$$ 1110 \ \mathnormal{AND}\ 0010 = 0010 $$
+
+\section{Problem 2}
+1. Write out a postings merge algorithm, in the style of Figure 1.6 in IIR, for an x OR y query.
+
+
+\lstinputlisting[language=Python]{problem2_1.py}
+
+
+2. Write out a postings merge algorithm, in the style of Figure 1.6 in IIR, for an x AND NOT y query.
+
+\lstinputlisting[language=Python]{problem2_2.py}
+
+
+\section{Problem 3}
+
+Recommend a query processing order for: \\
+(tangerine OR trees) AND (marmalade OR skies) AND (kaleidoscope OR eyes) given the following postings list sizes are shown in the assignment1.
+
+As mentioned in the book, we will have to get the frequencies for all terms, and then estimate the size of each OR by the sum of the frequencies of its disjuncts. We can then process the query in increasing order of the size of each disjunctive term. 
+
+So we will start with the following and continue to the end. The number in front of each term is the sum of the frequencies of its disjuncts.
+
+\begin{enumerate}
+\item kaleidoscope OR eyes = $259,965$
+\item marmalade OR skies =$282,449$
+\item tangerine OR trees = $403,821$
+\end{enumerate}
+
+\section{Problem 4}
+
+How should the Boolean query x OR NOT y be handled? Why is the naive evaluation of this query normally very expensive? Write out a postings merge algorithm that evaluates this query efficiently.
+
+The naive evaluation is expensive, because you have to seek all the documents twice. First finding all the documents where y is not included and then do the OR query again on all the documents two find the x OR NOT y query. This implementation will have a runtime of 2 * N, where N is the number of docs in the collection. Using the following algorithm, we can reduce the time complexity:
+
+\lstinputlisting[language=Python]{problem4.py}
+
+
+
+\end{document}
